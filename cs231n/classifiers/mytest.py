@@ -56,8 +56,14 @@ y = np.array([
 ])
 
 print('======')
-scores[scores > 0] = 1
-print(scores)
+
+x = np.random.randn(100, 3073)
+y = np.arange(100)
+
+indices = np.random.choice(100, 10)
+print(x[indices].shape)
+print(y[indices].shape)
+
 #print(scores[np.arange(2), y])
 #print(scores[:,y])
 

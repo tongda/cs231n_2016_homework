@@ -1,4 +1,4 @@
-activate_this = '.env/bin/activate_this.py'
+activate_this = '../.env/bin/activate_this.py'
 #execfile(activate_this, dict(__file__=activate_this))
 exec(open(activate_this).read(), dict(__file__=activate_this))
 
@@ -55,7 +55,12 @@ y = np.array([
     5, 6
 ])
 
-print(scores.T[y].T)
+print('======')
+scores[scores > 0] = 1
+print(scores)
+#print(scores[np.arange(2), y])
+#print(scores[:,y])
+
 #print(np.diag(scores.T[y]))
 #np.diag(scores.T[y]) = 0
 #print(socres)

@@ -87,24 +87,19 @@ def svm_loss_vectorized(W, X, y, reg):
   # print('y[1]', y[1])
   # print('scores[0][5]', scores[0][y[0]])
   # print('scores[y][0]', scores[:np.array([4])])
-  N = X.shape[0]
-  correct_class_socres = scores[np.arange(N), y] # (500,)
-  diffs = (scores.T - correct_class_socres).T + 1
-  diffs[np.arange(N), y] = 0  # clear diffs of correct classes
-  margins = np.maximum(0, diffs) # (500, 10)
-  
-  loss = np.sum(margins) / N
+
+  correct_class_socres = np.diag(scores.T[y]) # (500,)
+  diffs = (scores.T - correct_class_socres).T
+  margins = np.maximum(0, diffs + 1) # (500, 10)
+  #margins[y] = 0 I cannot do this easily, skipping this means each row has an element with 1 on the correct class
+  # the total margins has 500 (X.shap[0]) rows, so we can substract 1 from the final loss value   
+  loss = np.sum(margins) / X.shape[0] - 1
   loss += 0.5 * reg * np.sum(W * W)
   #############################################################################
   #                             END OF YOUR CODE                              #
   #############################################################################
 
-  dW_factors = np.zeros(diffs.shape) # (500, 10)
-  dW_factors[diffs > 0] = 1 # for other non-correct classes
-  dW_factors[np.arange(N), y] = - np.sum(dW_factors, axis = 1) # for correct classes
 
-  dW = X.T.dot(dW_factors) # (3073, 10)
-  dW /= N
   #############################################################################
   # TODO:                                                                     #
   # Implement a vectorized version of the gradient for the structured SVM     #

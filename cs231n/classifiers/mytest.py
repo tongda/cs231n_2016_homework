@@ -4,6 +4,7 @@ exec(open(activate_this).read(), dict(__file__=activate_this))
 
 import numpy as np
 import matplotlib.pyplot as plt
+ 
 
 plt.rcParams['figure.figsize'] = (10.0, 8.0) # set default size of plots
 plt.rcParams['image.interpolation'] = 'nearest'
@@ -57,10 +58,16 @@ y = np.array([
 
 print('======')
 
-x = 10 * np.arange(4).reshape(4, 1)
+x = 10 * np.arange(6).reshape(3, 2)
 y = np.arange(3).reshape(1, 3)
 
-print(x.dot(y))
+#print(x.dot(y))
+
+x = np.random.rand(*x.shape)
+y = (x < 0.6)
+print(x)
+z = np.random.rand(3, 2) * y
+print(z)
 
 # indices = np.random.choice(100, 10)
 # print(x[indices].shape)
@@ -74,3 +81,17 @@ print(x.dot(y))
 #print(socres)
 
 #xExtend - 
+
+
+correct_scores = np.asarray([
+  [-0.81233741, -1.27654624, -0.70335995],
+  [-0.17129677, -1.18803311, -0.47310444],
+  [-0.51590475, -1.01354314, -0.8504215 ],
+  [-0.15419291, -0.48629638, -0.52901952],
+  [-0.00618733, -0.12435261, -0.15226949]])
+loss = 0.1 * 0.5 * np.sum(correct_scores * correct_scores)
+print(loss)
+print(1.6-0.25)
+
+for x in [10 ** x for x in range(-1, -6, -1)]:
+    print(x)

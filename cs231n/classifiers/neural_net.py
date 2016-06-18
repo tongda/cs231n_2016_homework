@@ -41,7 +41,21 @@ class TwoLayerNet(object):
     self.params['W2'] = std * np.random.randn(hidden_size, output_size)
     self.params['b2'] = np.zeros(output_size)
 
-  def loss(self, X, y=None, reg=0.0):
+  @staticmethod
+  def pca_dimensionality_reduction(training, validation, test, dimensions):
+    # Assume input data matrix X of size [N x D]
+    X = training - np.mean(training, axis = 0) # zero-center the data (important)
+    cov = np.dot(X.T, X) / X.shape[0] # get the data covariance matrix
+    U,S,V = np.linalg.svd(cov)
+    
+    training_reduced = np.dot(training, U[:,:dimensions]) # [N x dimensions]
+    validation_reduced = np.dot(validation, U[:,:dimensions]) # [N x dimensions]
+    test_reduced = np.dot(test, U[:,:dimensions]) # [N x dimensions]
+
+    return (training_reduced, validation_reduced, test_reduced, U)
+
+
+  def loss(self, X, y=None, reg=0.0, dropout_keeping_ratio=1):
     """
     Compute the loss and gradients for a two layer fully connected neural
     network.
@@ -79,6 +93,11 @@ class TwoLayerNet(object):
     # Compute score （没有regularization的概念，regularization只用来“修正”loss）
     scores1 = X.dot(W1) + b1     # [N, H]
     h = np.maximum(0, scores1)     # [N, H]
+
+    if dropout_keeping_ratio < 1:
+      u = (np.random.rand(*h.shape) < dropout_keeping_ratio) / dropout_keeping_ratio
+      h *= u
+    
     scores = h.dot(W2) + b2     # [N, C]
     pass
     #############################################################################
@@ -98,7 +117,7 @@ class TwoLayerNet(object):
     # classifier loss. So that your results match ours, multiply the            #
     # regularization loss by 0.5                                                #
     #############################################################################
-    exp_scores = np.exp(scores)     # [N, C]
+    exp_scores = np.exp(scores - np.max(scores))     # [N, C]
     probabilities = exp_scores / np.sum(exp_scores, axis = 1, keepdims = True)     # [N, C] / [N, 1]
     correct_probabilities = probabilities[range(N), y] # [N, 1]，正确分类的probability
     data_loss = np.sum(-np.log(correct_probabilities)) / N
@@ -131,6 +150,9 @@ class TwoLayerNet(object):
     # Compute dh
     dh = dscores.dot(W2.T)     # [N, H]，对于h，reg_loss是常数，其导数是0
 
+    if dropout_keeping_ratio < 1:
+      dh *= u
+
     # Compute dscores1 for relu activation function
     dscores1 = dh
     dscores1[scores1 <= 0] = 0
@@ -152,7 +174,7 @@ class TwoLayerNet(object):
   def train(self, X, y, X_val, y_val,
             learning_rate=1e-3, learning_rate_decay=0.95,
             reg=1e-5, num_iters=100,
-            batch_size=200, verbose=False):
+            batch_size=200, dropout_keeping_ratio=1, verbose=False):
     """
     Train this neural network using stochastic gradient descent.
 
@@ -194,7 +216,7 @@ class TwoLayerNet(object):
       #########################################################################
 
       # Compute loss and gradients using the current minibatch
-      loss, grads = self.loss(X_batch, y=y_batch, reg=reg)
+      loss, grads = self.loss(X_batch, y=y_batch, reg=reg, dropout_keeping_ratio=dropout_keeping_ratio)
       loss_history.append(loss)
 
       #########################################################################

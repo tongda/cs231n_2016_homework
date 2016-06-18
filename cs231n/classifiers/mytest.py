@@ -4,6 +4,7 @@ exec(open(activate_this).read(), dict(__file__=activate_this))
 
 import numpy as np
 import matplotlib.pyplot as plt
+import random
  
 
 plt.rcParams['figure.figsize'] = (10.0, 8.0) # set default size of plots
@@ -95,3 +96,10 @@ print(1.6-0.25)
 
 for x in [10 ** x for x in range(-1, -6, -1)]:
     print(x)
+
+for _ in range(10):
+    lr = 10 ** random.uniform(-6, 1)
+    print(lr)
+
+print(3.715396e-03)
+print(10 ** -1)

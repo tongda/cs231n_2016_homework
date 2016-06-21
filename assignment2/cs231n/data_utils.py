@@ -7,9 +7,9 @@ from scipy.misc import imread
 def load_CIFAR_batch(filename):
     """ load single batch of cifar """
     with open(filename, 'rb') as f:
-        datadict = pickle.load(f)
-        X = datadict['data']
-        Y = datadict['labels']
+        datadict = pickle.load(f, encoding="bytes")
+        X = datadict[b'data']
+        Y = datadict[b'labels']
         X = X.reshape(10000, 3, 32, 32).transpose(0, 2, 3, 1).astype("float")
         Y = np.array(Y)
         return X, Y
